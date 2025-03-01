@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "mainpage.dart";
+import "mainpage/mainpage.dart";
 
 
 
@@ -23,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const MyHomePage(title: "Curly"),
+          builder: (context) => MainPageButtons(),
         ),
       );
     } else {
@@ -36,9 +36,10 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("")),
-
-      body: Padding(
+      body: Container(
+        decoration: BoxDecoration(
+          color: Color(0xFF0A0A23),
+       ),
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -47,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(8.0),
               child: Image.asset(
                 'assets/icons/CurlyIcon.jpeg',
-                width: 130,  // Genişlik
+                width: 130,
                 height: 130, // Yükseklik
               ),
             ),
@@ -55,20 +56,26 @@ class _LoginScreenState extends State<LoginScreen> {
 
             TextField(
               controller: _usernameController,
-              decoration: const InputDecoration(labelText: "Username"),
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(labelText: "Username",
+              labelStyle: TextStyle(color: Colors.white)),
+
             ),
             const SizedBox(height: 20),
+
             TextField(
               controller: _passwordController,
-              decoration: const InputDecoration(labelText: "Password"),
+              style: new TextStyle(color:  Colors.white),
+              decoration: const InputDecoration(labelText: "Password",
+              labelStyle: TextStyle(color: Colors.white)),
               obscureText: true,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             ElevatedButton(
               onPressed: _login,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black, // Butonun arka plan rengi
-                foregroundColor: Colors.white, // Buton yazı rengi
+                backgroundColor: Colors.white, // Butonun arka plan rengi
+                foregroundColor: Colors.black, // Buton yazı rengi
               ),
               child: const Text("Login"),
             ),
