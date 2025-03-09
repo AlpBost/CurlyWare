@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:jjj/auth_service.dart";
 import "mainpage/mainpage.dart";
 
 
@@ -14,23 +15,20 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _login() {
-    String username = _usernameController.text;
-    String password = _passwordController.text;
+  void _login(BuildContext context) async{
+    final authService = AuthService();
 
-    //burada backend db kontrolu olmalı
-    if (username == "admin" && password == "1234") {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MainPageButtons(),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Incorrect username or password")),
-      );
+    try{
+      await authService.signInWithEmailPassword(
+          _usernameController.text, _passwordController.text);
+    } catch (e){
+      showDialog(
+          context: context,
+          builder: (context) =>AlertDialog(
+        title: Text(e.toString()),
+      ));
     }
+
   }
 
   @override
@@ -58,7 +56,9 @@ class _LoginScreenState extends State<LoginScreen> {
               controller: _usernameController,
               style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(labelText: "Username",
-              labelStyle: TextStyle(color: Colors.white)),
+              labelStyle: TextStyle(color: Colors.white),
+              hintText: "abc@gmail.com")
+              ,
 
             ),
             const SizedBox(height: 20),
@@ -67,12 +67,15 @@ class _LoginScreenState extends State<LoginScreen> {
               controller: _passwordController,
               style: new TextStyle(color:  Colors.white),
               decoration: const InputDecoration(labelText: "Password",
-              labelStyle: TextStyle(color: Colors.white)),
+              labelStyle: TextStyle(color: Colors.white),
+              hintText: "*******",
+              hintStyle: TextStyle(color: Colors.grey)),
               obscureText: true,
+
             ),
             const SizedBox(height: 40),
             ElevatedButton(
-              onPressed: _login,
+              onPressed: () => _login(context),//Tuşa basıldığında logini verir
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white, // Butonun arka plan rengi
                 foregroundColor: Colors.black, // Buton yazı rengi

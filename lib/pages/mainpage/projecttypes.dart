@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jjj/bottombar.dart';
+import 'package:jjj/pages/loginpage.dart';
 import 'package:jjj/pages/mainpage/mainpage.dart';
 import 'tasks.dart';
 
@@ -75,8 +76,11 @@ class ProjectTypes extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, "/login"); // Giriş sayfasına yönlendirme
+              Navigator.of(context, rootNavigator: true).pop(); // Önce dialog'u kapat
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen()),
+              ); // Login ekranına yönlendir
             },
             child: Text("Logout", style: TextStyle(color: Colors.red)),
           ),
