@@ -6,7 +6,6 @@ import 'package:jjj/pages/mainpage/projecttypes.dart';
 class ReportsPage extends StatefulWidget {
   @override
   _ReportsPageState createState() => _ReportsPageState();
-
 }
 
 class _ReportsPageState extends State<ReportsPage> {
@@ -28,7 +27,7 @@ class _ReportsPageState extends State<ReportsPage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, "/login"); // Giriş sayfasına yönlendirme
+              Navigator.pushReplacementNamed(context, "/login"); //DÜZELT
             },
             child: Text("Logout", style: TextStyle(color: Colors.red)),
           ),
@@ -66,31 +65,64 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
+  Widget _dailyTaskOverview() {
+    return Container(
+      height: 200,
+      width: 300,  // Genişlik ekledim
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black38,
+            blurRadius: 19,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(
+          "Task Overview",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 19,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
 
-  @override
+
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Reports"),
         actions: [
           IconButton(
-              icon: Icon(Icons.logout),
-              onPressed: () {
-                _logout(context);
-              },
+            icon: Icon(Icons.logout),
+            onPressed: () {
+              _logout(context);
+            },
           ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 20.0,
-          mainAxisSpacing: 20.0,
-          childAspectRatio: 1,
+        child: Column(
           children: [
-            _buildProjectBox(context, "Ongoing " + completedProjectCounter.toString(), Colors.blueGrey[800]!, completedProjectCounter),
-            _buildProjectBox(context, "In Process " + ongoingProjectCounter.toString(), Colors.grey[900]!, ongoingProjectCounter),
+            Wrap(
+              spacing: 20.0,
+              runSpacing: 20.0,
+              children: [
+                _buildProjectBox(context, "Ongoing " + completedProjectCounter.toString(), Colors.blueGrey[800]!, completedProjectCounter),
+                _buildProjectBox(context, "In Process " + ongoingProjectCounter.toString(), Colors.grey[900]!, ongoingProjectCounter),
+              ],
+            ),
+            SizedBox(height: 20),
+            _dailyTaskOverview(),
           ],
         ),
       ),

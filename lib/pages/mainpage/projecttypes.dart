@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:jjj/bottombar.dart';
-import 'package:jjj/pages/loginpage.dart';
-import 'package:jjj/pages/mainpage/mainpage.dart';
+import 'package:jjj/pages/LoginAndRegister/loginpage.dart';
+import 'package:jjj/pages/mainpage/mainpagebuttons.dart';
 import 'tasks.dart';
 
 class ProjectTypes extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,7 +15,10 @@ class ProjectTypes extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {
-              _logout(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen()),
+              );
             },
           ),
         ],
@@ -76,12 +80,12 @@ class ProjectTypes extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              Navigator.of(context, rootNavigator: true).pop(); // Önce dialog'u kapat
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => LoginScreen()),
-              ); // Login ekranına yönlendir
-            },
+              Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                );
+              },
             child: Text("Logout", style: TextStyle(color: Colors.red)),
           ),
         ],
@@ -162,7 +166,10 @@ class ProjectTypesPage extends StatelessWidget {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, "/login"); // Giriş sayfasına yönlendirme
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen()),
+              );
             },
             child: Text("Logout", style: TextStyle(color: Colors.red)),
           ),
@@ -202,7 +209,11 @@ class InProcessPage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {
-              ProjectTypesPage()._logout(context);
+              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen()),
+              );
             },
           ),
         ],
@@ -222,7 +233,11 @@ class CompletPage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {
-              ProjectTypesPage()._logout(context);
+              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen()),
+              );
             },
           ),
         ],
@@ -242,7 +257,11 @@ class BugsPage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {
-              ProjectTypesPage()._logout(context);
+              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen()),
+              );
             },
           ),
         ],

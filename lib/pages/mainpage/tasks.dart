@@ -1,4 +1,13 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
+
+class Task {
+  Int? id;
+  String? taskName;
+  List<String>? contributors;
+  Task (this.id,this.taskName,this.contributors);
+}
 
 class Tasks extends StatefulWidget {
   @override
@@ -17,15 +26,11 @@ class _TasksState extends State<Tasks> {
       visibleTasks = List.from(tasks);
     });
   }
+  void _deleteTask(String taskName) {
 
-  void _searchTask(String taskName) {
-    setState(() {
-      if (tasks.contains(taskName)) {
-        visibleTasks = [taskName] + tasks.where((task) => task != taskName).toList();
-      } else {
-        visibleTasks = List.from(tasks);
-      }
-    });
+  }
+  void _addContributor () {
+
   }
 
   @override
@@ -42,8 +47,6 @@ class _TasksState extends State<Tasks> {
               child: Text("Add Task"),
             ),
           ),
-
-          // expand kaydırma için kullanılıyor
           Expanded(
             child: SingleChildScrollView(
               child: Column(
