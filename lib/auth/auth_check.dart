@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:jjj/pages/loginpage.dart';
-import 'package:jjj/pages/messagepage.dart';
+import 'package:jjj/pages/LoginAndRegister/loginpage.dart';
+import 'package:jjj/chat/messagepage.dart';
 
 class AuthCheck extends StatelessWidget{
   const AuthCheck({super.key});
@@ -14,7 +14,7 @@ class AuthCheck extends StatelessWidget{
           builder:(context, snapshot){
 
             if(snapshot.hasData){
-              return MessagePage();
+              return LoginScreen();
             }
             else{
               return const LoginScreen();

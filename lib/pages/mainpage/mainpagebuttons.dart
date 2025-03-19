@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jjj/bottombar.dart';
-import '../messagepage.dart';
+import '../../chat/messagepage.dart';
 import 'projecttypes.dart';
 import 'tasks.dart';
 import 'package:jjj/pages/reportpage/reportspage.dart';
