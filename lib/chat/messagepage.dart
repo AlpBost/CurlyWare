@@ -52,7 +52,9 @@ class MessagePage extends StatelessWidget{
                   context,
                   MaterialPageRoute(
                     builder: (context)=> ChatPage(
-                      recieveEmail: userData["email"],),));
+                      recieveEmail: userData["email"],
+                      recieverId: userData["uid"],
+                    ),));
             });
       }else{
         return Container();

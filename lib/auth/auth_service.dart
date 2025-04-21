@@ -26,7 +26,8 @@ class AuthService{
       throw Exception(e.code);
     }
   }
-  String? getCurrentUser(){
-    return _auth.currentUser?.email;
+  User? getCurrentUser(){
+    return _auth.currentUser;
   }
+
 }
