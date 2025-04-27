@@ -6,15 +6,21 @@ class ChatService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Stream<List<Map<String, dynamic>>> getUsersStram() {
-    return _firestore.collection("Users").snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final user = doc.data();
-        return user;
-      }).toList();
-    });
+  // Fetch all users except the current user
+  Future<List<Map<String, dynamic>>> getUsers() async {
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+    // Get all users from Firestore
+    final snapshot = await FirebaseFirestore.instance.collection("Users").get();
+    final allUsers = snapshot.docs.map((doc) => doc.data()).toList();
+
+    // Filter out the current user from the list
+    final otherUsers = allUsers.where((user) => user["uid"] != currentUserId).toList();
+
+    return otherUsers;
   }
 
+  // Send a message to another user in the chat room
   Future<void> sendMessage(String recieverId, message) async {
     final String currentUserId = _auth.currentUser!.uid;
     final String? currentUserEmail = _auth.currentUser!.email;
@@ -29,8 +35,10 @@ class ChatService {
     );
 
     List<String> ids = [currentUserId, recieverId];
-    ids.sort(); //Sort ids so for any two people chatroomId is same
+    ids.sort(); // Sort to ensure the chat room ID is consistent
     String chatRoomId = ids.join("_");
+
+    // Add the message to the Firestore chat room
     await _firestore
         .collection("chat_rooms")
         .doc(chatRoomId)
@@ -38,16 +46,20 @@ class ChatService {
         .add(newMessage.toMap());
   }
 
-  Stream<QuerySnapshot> getMessages(String userId, otherUserId) {
+  // Fetch all messages in a chat room once
+  Future<List<Map<String, dynamic>>> getMessagesOnce(String userId, String otherUserId) async {
     List<String> ids = [userId, otherUserId];
     ids.sort();
     String chatRoomId = ids.join("_");
 
-    return _firestore
+    // Get all messages from the Firestore chat room
+    QuerySnapshot snapshot = await _firestore
         .collection("chat_rooms")
         .doc(chatRoomId)
         .collection("messages")
         .orderBy("timestamp", descending: false)
-        .snapshots();
+        .get();
+
+    return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
   }
 }

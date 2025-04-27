@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
+
 
 class Message{
   final String senderId;
@@ -16,6 +16,7 @@ class Message{
     required this.timestamp
 });
 
+  // Convert the Message object to a Map for saving in Firestore
   Map<String,dynamic> toMap(){
     return{
       "senderId":senderId,

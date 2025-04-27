@@ -11,6 +11,8 @@ class UserTile extends StatelessWidget{
 });
   @override
   Widget build(BuildContext context){
+
+  //Gesture used for making a Container clickable
   return GestureDetector(
     onTap: onTap,
     child: Container(

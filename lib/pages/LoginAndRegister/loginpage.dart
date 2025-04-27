@@ -24,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text.trim(),
       );
 
-      // ✅ Kullanıcı login olduysa MainPage'e yönlendir
+      //  Kullanıcı login olduysa MainPage'e yönlendir
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => MainPageButtons()),

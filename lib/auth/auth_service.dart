@@ -7,13 +7,15 @@ class AuthService{
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // This function signs in the user using email and password
   Future<UserCredential> signInWithEmailPassword(String email,String pass) async{
     try{
 
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
           email: email, password: pass
       );
-      //uid is user id
+
+      // Save user info (uid and email) to Firestore database
       _firestore.collection("Users").doc(userCredential.user!.uid).set(
         {
           'uid':userCredential.user!.uid,
