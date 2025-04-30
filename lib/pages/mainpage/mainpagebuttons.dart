@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:jjj/bottombar.dart';
 import '../../chat/messagepage.dart';
 import 'projecttypes.dart';
-import 'tasks.dart';
+import 'ProjectsController.dart';
 import 'package:jjj/pages/reportpage/reportspage.dart';
 
-
+//It was created to call the methods and create pages to be created
+// when the user select from bottombar.
 
 class MainPageButtons extends StatefulWidget {
 
@@ -19,8 +20,8 @@ class _MainpageButtonsState extends State<MainPageButtons> {
   static final List<Widget> _pages = <Widget>[
     Column(
       children: [
-        Expanded(child: ProjectTypes()), // İlk bileşen
-        Expanded(child: Tasks()), // İkinci bileşen
+        Expanded(child: ProjectTypes()),
+        Expanded(child: ProjectController()),
       ],
     ),
     Center(child: MessagePage()),
@@ -28,7 +29,6 @@ class _MainpageButtonsState extends State<MainPageButtons> {
     Column(
       children: [
         Expanded(child: ReportsPage()),
-        //Expanded(child: ProjectBoxes()),
       ],
     ),
     Center(child: Text("Reports", style: TextStyle(fontSize: 18))),
@@ -39,6 +39,7 @@ class _MainpageButtonsState extends State<MainPageButtons> {
       _selectedButtonIndex = index;
     });
   }
+
 
   @override
   Widget build(BuildContext context) {

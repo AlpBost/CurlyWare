@@ -17,14 +17,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login(BuildContext context) async {
     final authService = AuthService();
-
     try {
       await authService.signInWithEmailPassword(
         _usernameController.text.trim(),
         _passwordController.text.trim(),
       );
-
-      //  Kullanıcı login olduysa MainPage'e yönlendir
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => MainPageButtons()),
@@ -33,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text("Giriş Hatası"),
+          title: const Text("Login Error!"),
           content: Text(e.toString()),
         ),
       );
@@ -46,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          color: Colors.grey[800]!,
+          color: Colors.grey[600]!,
         ),
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -62,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
               controller: _usernameController,
               style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(
-                labelText: "Email",
+                labelText: "E-mail",
                 labelStyle: TextStyle(color: Colors.white),
               ),
             ),
@@ -88,14 +85,13 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
-                // Register sayfasına yönlendirme
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const Registerpage()),
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[800]!,
+                backgroundColor: Colors.grey[700]!,
                 foregroundColor: Colors.white,
               ),
               child: const Text("Sign Up"),

@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:jjj/main.dart';
-import 'package:jjj/pages/mainpage/projecttypes.dart';
+import 'package:jjj/pages/mainpage/ProjectsController.dart';
+import 'package:jjj/pages/LoginAndRegister/loginpage.dart';
 
 class ReportsPage extends StatefulWidget {
   @override
@@ -8,12 +10,57 @@ class ReportsPage extends StatefulWidget {
 }
 
 class _ReportsPageState extends State<ReportsPage> {
+  List<Project> projects = [];
 
-  // bu bilgiler db den al
-  int totalTaskCount = 15;
-  int completedTaskCount = 8;
-  int ongoingTaskCount = 6;
-  int doneTaskCount = 1;
+  int totalTaskCount = 0;
+  int todoTaskCount = 0;
+  int inprogressTaskCount = 0;
+  int doneTaskCount = 0;
+  int bugsTaskCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTasksFromFirebase();
+  }
+
+  Future<void> _fetchTasksFromFirebase() async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('projects')
+        .orderBy('createdAt', descending: true)
+        .get();
+
+    print('Fetched ${snapshot.docs.length} tasks from Firestore');
+
+    List<Project> fetchedProjects = snapshot.docs.map((doc) {
+      return Project(
+        projectName: doc['projectName'],
+        projectType: doc['projectType'],
+      );
+    }).toList();
+
+    for (var project in fetchedProjects) {
+      switch (project.projectType) {
+        case 'To Do':
+          todoTaskCount++;
+          break;
+        case 'In Progress':
+          inprogressTaskCount++;
+          break;
+        case 'Completed':
+          doneTaskCount++;
+          break;
+        case 'Bugs':
+          bugsTaskCount++;
+          break;
+      }
+    }
+
+    setState(() {
+      projects = fetchedProjects;
+      totalTaskCount = fetchedProjects.length;
+    });
+  }
 
   void _logout(BuildContext context) {
     showDialog(
@@ -29,7 +76,10 @@ class _ReportsPageState extends State<ReportsPage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, "/login");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen()),
+              );
             },
             child: Text("Logout", style: TextStyle(color: Colors.red)),
           ),
@@ -41,7 +91,7 @@ class _ReportsPageState extends State<ReportsPage> {
   Widget _buildProjectBox(
       BuildContext context, String title, Color color, int numberOfProjects) {
     return Container(
-      height: 100,
+      height: 80,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(39),
@@ -81,12 +131,16 @@ class _ReportsPageState extends State<ReportsPage> {
   }
 
   Widget _dailyTaskOverview() {
-    double completedPercentage = (completedTaskCount / totalTaskCount) * 100;
-    double ongoingPercentage = (ongoingTaskCount / totalTaskCount) * 100;
-    double donePercentage = (doneTaskCount / totalTaskCount) * 100;
+    double todoPercentage =
+    totalTaskCount == 0 ? 0 : (todoTaskCount / totalTaskCount) * 100;
+    double inprogressPercentage =
+    totalTaskCount == 0 ? 0 : (inprogressTaskCount / totalTaskCount) * 100;
+    double donePercentage =
+    totalTaskCount == 0 ? 0 : (doneTaskCount / totalTaskCount) * 100;
+    double bugsPercentage =
+    totalTaskCount == 0 ? 0 : (bugsTaskCount / totalTaskCount) * 100;
 
     return Container(
-      height: 300,
       width: 350,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -105,11 +159,13 @@ class _ReportsPageState extends State<ReportsPage> {
             ),
           ),
           SizedBox(height: 20),
-          _buildTaskProgress("Completed", completedPercentage.toInt(), Colors.green),
+          _buildTaskProgress("To Do", todoPercentage.toInt(), Colors.green[900]!),
           SizedBox(height: 10),
-          _buildTaskProgress("Ongoing", ongoingPercentage.toInt(), Colors.blue),
+          _buildTaskProgress("In Process", inprogressPercentage.toInt(), Colors.red[800]!),
           SizedBox(height: 10),
-          _buildTaskProgress("Done", donePercentage.toInt(), Colors.red),
+          _buildTaskProgress("Completed", donePercentage.toInt(), Colors.blue[900]!),
+          SizedBox(height: 10),
+          _buildTaskProgress("Bugs", bugsPercentage.toInt(), Colors.purple[700]!),
         ],
       ),
     );
@@ -128,7 +184,7 @@ class _ReportsPageState extends State<ReportsPage> {
           ),
         ),
         SizedBox(height: 5),
-        LinearProgressIndicator( // internetten bakıldı
+        LinearProgressIndicator(
           value: percentage / 100,
           backgroundColor: color.withOpacity(0.2),
           valueColor: AlwaysStoppedAnimation<Color>(color),
@@ -149,7 +205,7 @@ class _ReportsPageState extends State<ReportsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Reports"),
+        title: Text("Analytics & Reports"),
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
@@ -161,20 +217,21 @@ class _ReportsPageState extends State<ReportsPage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(30.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Wrap(
-                spacing: 20.0,
-                runSpacing: 20.0,
+                spacing: 10.0,
+                runSpacing: 10.0,
                 children: [
-                  _buildProjectBox(context, "Completed", Colors.green, completedTaskCount),
-                  _buildProjectBox(context, "Ongoing", Colors.blue, ongoingTaskCount),
-                  _buildProjectBox(context, "Done", Colors.red, doneTaskCount),
+                  _buildProjectBox(context, "To Do", Colors.green[900]!, todoTaskCount),
+                  _buildProjectBox(context, "In Process", Colors.red[800]!, inprogressTaskCount),
+                  _buildProjectBox(context, "Completed", Colors.blue[900]!, doneTaskCount),
+                  _buildProjectBox(context, "Bugs", Colors.purple[700]!, bugsTaskCount),
                 ],
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 30),
               _dailyTaskOverview(),
             ],
           ),
