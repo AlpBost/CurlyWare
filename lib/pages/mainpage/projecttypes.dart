@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:jjj/bottombar.dart';
 import 'package:jjj/pages/LoginAndRegister/loginpage.dart';
 import 'package:jjj/pages/mainpage/mainpagebuttons.dart';
+import '../../bugsPage.dart';
+import '../../completedPage.dart';
+import '../../inProgressPage.dart';
+import '../../toDoPage.dart';
 import 'ProjectsController.dart';
 
 class ProjectTypes extends StatelessWidget {
@@ -143,54 +147,3 @@ class ProjectTypesPage extends StatelessWidget {
   }
 }
 
-
-
-
-class ToDoPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Proje "),
-      ),
-      body: Center(child: Text("Proje 2 Detayları")),
-    );
-  }
-}
-
-
-class InProgressPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Proje 2"),
-      ),
-      body: Center(child: Text("Proje 2 Detayları")),
-    );
-  }
-}
-
-class CompletedPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Proje 3"),
-      ),
-      body: Center(child: Text("Proje 3 Detayları")),
-    );
-  }
-}
-
-class BugsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Proje 4"),
-      ),
-      body: Center(child: Text("Proje 4 Detayları")),
-    );
-  }
-}

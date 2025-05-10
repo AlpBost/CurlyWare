@@ -157,8 +157,24 @@ class _DetailedProjectPageState extends State<DetailedProjectPage> {
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty)
                   return Text("No comments have been made.");
 
+                var docs = snapshot.data!.docs;
+
+                // Yeni → eski sıralama
+                docs.sort((a, b) {
+                  final aData = a.data() as Map<String, dynamic>;
+                  final bData = b.data() as Map<String, dynamic>;
+                  final aTimestamp = aData['timestamp'] as Timestamp?;
+                  final bTimestamp = bData['timestamp'] as Timestamp?;
+
+                  if (aTimestamp == null && bTimestamp == null) return 0;
+                  if (aTimestamp == null) return 1;
+                  if (bTimestamp == null) return -1;
+
+                  return bTimestamp.compareTo(aTimestamp); // yeni → eski
+                });
+
                 return Column(
-                  children: snapshot.data!.docs.map((doc) {
+                  children: docs.map((doc) {
                     final data = doc.data() as Map<String, dynamic>;
                     final timestamp = data['timestamp'] as Timestamp?;
                     final formattedTime = timestamp != null
@@ -166,7 +182,7 @@ class _DetailedProjectPageState extends State<DetailedProjectPage> {
                         timestamp.millisecondsSinceEpoch)
                         .toLocal()
                         .toString()
-                        .substring(0, 16) // yyyy-MM-dd HH:mm
+                        .substring(0, 16)
                         : 'Unknown time';
                     return Column(
                       children: [
@@ -175,14 +191,15 @@ class _DetailedProjectPageState extends State<DetailedProjectPage> {
                           title: Text(data['username'] ?? 'No such user'),
                           subtitle: Text('${data['comment'] ?? ''}\n$formattedTime'),
                         ),
-                        Divider(), // Burada Divider ekliyoruz
+                        Divider(),
                       ],
                     );
-
                   }).toList(),
                 );
               },
             ),
+
+
           ],
         ),
       ),
