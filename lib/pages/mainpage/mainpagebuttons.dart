@@ -25,7 +25,6 @@ class _MainpageButtonsState extends State<MainPageButtons> {
       ],
     ),
     Center(child: MessagePage()),
-    Center(child: Text("Projects", style: TextStyle(fontSize: 18))),
     Column(
       children: [
         Expanded(child: ReportsPage()),

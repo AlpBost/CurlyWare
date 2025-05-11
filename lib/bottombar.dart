@@ -27,10 +27,6 @@ class CustomBottomNavigationBar extends StatelessWidget {
           label: "",
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.folder),
-          label: "",
-        ),
-        BottomNavigationBarItem(
           icon: Icon(Icons.bar_chart),
           label: "",
         ),

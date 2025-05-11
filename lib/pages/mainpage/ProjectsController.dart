@@ -61,7 +61,7 @@ class _ProjectControllerState extends State<ProjectController> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('New Task Details'),
+          title: Text('New Project Details'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

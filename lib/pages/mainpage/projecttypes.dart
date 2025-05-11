@@ -34,7 +34,7 @@ class ProjectTypes extends StatelessWidget {
           childAspectRatio: 1.5,
           children: [
             _buildProjectBox(context, "To Do", Colors.green[900]!, ToDoPage()),
-            _buildProjectBox(context, "In Process", Colors.red[800]!, InProgressPage()),
+            _buildProjectBox(context, "In Progress", Colors.red[800]!, InProgressPage()),
             _buildProjectBox(context, "Completed", Colors.blue[900]!, CompletedPage()),
             _buildProjectBox(context, "Bugs", Colors.purple[700]!, BugsPage()),
           ],
