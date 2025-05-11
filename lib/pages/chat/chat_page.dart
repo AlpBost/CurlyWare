@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:jjj/auth/auth_service.dart';
-import 'package:jjj/chat/chat_service.dart';
+import 'package:jjj/pages/chat/chat_service.dart';
 
 class ChatPage extends StatefulWidget {
   final String recieveEmail;

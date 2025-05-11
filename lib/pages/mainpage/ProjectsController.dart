@@ -1,14 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:jjj/detailedProjectPage.dart';
+import 'package:jjj/pages/mainpage/DetailedPages/detailedProjectPage.dart';
 
 //Object for saving to db
 class Project {
   String? projectName;
   String? projectType;
+  String? description;
+  String? assigned;
 
-  Project({this.projectName, this.projectType});
+  Project({
+    this.projectName,
+    this.projectType,
+    this.description,
+    this.assigned,
+  });
 }
+
 
 class ProjectController extends StatefulWidget {
   @override
@@ -24,30 +32,32 @@ class _ProjectControllerState extends State<ProjectController> {
     await FirebaseFirestore.instance.collection('projects').add({
       'projectName': project.projectName,
       'projectType': project.projectType,
+      'description': project.description,
+      'assigned': project.assigned,
       'createdAt': FieldValue.serverTimestamp(),
     });
     await _fetchTasksFromFirebase();
   }
 
   Future<void> _fetchTasksFromFirebase() async {
-    final snapshot =
-        await FirebaseFirestore.instance
-            .collection('projects')
-            .orderBy('createdAt', descending: true)
-            .get();
+    final snapshot = await FirebaseFirestore.instance
+        .collection('projects')
+        .orderBy('createdAt', descending: true)
+        .get();
 
     print('Fetched ${snapshot.docs.length} tasks from Firestore');
-
     setState(() {
-      projects =
-          snapshot.docs.map((doc) {
-            return Project(
-              projectName: doc['projectName'],
-              projectType: doc['projectType'],
-            );
-          }).toList();
+      projects = snapshot.docs.map((doc) {
+        return Project(
+          projectName: doc['projectName'],
+          projectType: doc['projectType'],
+          description: doc['description'],
+          assigned: doc['assigned'],
+        );
+      }).toList();
     });
   }
+
 
   @override
   void initState() {
@@ -62,35 +72,48 @@ class _ProjectControllerState extends State<ProjectController> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('New Project Details'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: InputDecoration(labelText: 'Project Name'),
-                onChanged: (value) {
-                  newTask.projectName = value;
-                },
-              ),
-              SizedBox(height: 20),
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  labelText: 'Project Type',
-                  border: OutlineInputBorder(),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  decoration: InputDecoration(labelText: 'Project Name'),
+                  onChanged: (value) {
+                    newTask.projectName = value;
+                  },
                 ),
-                items:
-                    ['To Do', 'In Progress', 'Completed', 'Bugs']
-                        .map(
-                          (status) => DropdownMenuItem(
-                            value: status,
-                            child: Text(status),
-                          ),
-                        )
-                        .toList(),
-                onChanged: (value) {
-                  newTask.projectType = value;
-                },
-              ),
-            ],
+                SizedBox(height: 10),
+                DropdownButtonFormField<String>(
+                  decoration: InputDecoration(
+                    labelText: 'Project Type',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: ['To Do', 'In Progress', 'Completed', 'Bugs']
+                      .map((status) => DropdownMenuItem(
+                    value: status,
+                    child: Text(status),
+                  ))
+                      .toList(),
+                  onChanged: (value) {
+                    newTask.projectType = value;
+                  },
+                ),
+                SizedBox(height: 10),
+                TextField(
+                  decoration: InputDecoration(labelText: 'Description'),
+                  onChanged: (value) {
+                    newTask.description = value;
+                  },
+                ),
+                SizedBox(height: 10),
+                TextField(
+                  decoration: InputDecoration(labelText: 'Assigned To'),
+                  onChanged: (value) {
+                    newTask.assigned = value;
+                  },
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -102,7 +125,9 @@ class _ProjectControllerState extends State<ProjectController> {
             ElevatedButton(
               onPressed: () async {
                 if (newTask.projectName != null &&
-                    newTask.projectType != null) {
+                    newTask.projectType != null &&
+                    newTask.description != null &&
+                    newTask.assigned != null) {
                   await _addTask(newTask);
                   Navigator.pop(context);
                 }
@@ -115,6 +140,7 @@ class _ProjectControllerState extends State<ProjectController> {
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -122,9 +148,21 @@ class _ProjectControllerState extends State<ProjectController> {
         children: [
           Padding(
             padding: const EdgeInsets.all(10.0),
-            child: ElevatedButton(
-              onPressed: _showAddTaskDialog,
-              child: Text("Add Project"),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  "Recent Projects",
+                  style: TextStyle(
+                    fontSize: 18,
+                  ),
+                ),
+                SizedBox(width: 20), // Yazı ile buton arası boşluk
+                ElevatedButton(
+                  onPressed: _showAddTaskDialog,
+                  child: Text("Add Project"),
+                ),
+              ],
             ),
           ),
 
@@ -138,14 +176,12 @@ class _ProjectControllerState extends State<ProjectController> {
 
                   return GestureDetector(
                     onTap: () async {
-                      final updatedState =await
-                      showDialog<String>(
+                      final updatedState = await showDialog<String>(
                         context: context,
-                        builder:
-                            (context) => DetailedProjectPage(
-                              title: task.projectName ?? "",
-                              previousState: task.projectType,
-                            ),
+                        builder: (context) => DetailedProjectPage(
+                          title: task.projectName ?? "",
+                          previousState: task.projectType,
+                        ),
                       );
                       if (updatedState != null) {
                         setState(() {
@@ -219,4 +255,5 @@ class _ProjectControllerState extends State<ProjectController> {
       ),
     );
   }
+
 }

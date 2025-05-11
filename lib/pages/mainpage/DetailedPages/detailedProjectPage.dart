@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth importu
 import 'package:flutter/material.dart';
 
-import 'auth/auth_service.dart';
+import '../../../auth/auth_service.dart';
+
+
 
 class DetailedProjectPage extends StatefulWidget {
   final String title;

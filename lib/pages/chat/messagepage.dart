@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jjj/auth/auth_service.dart';
-import 'package:jjj/chat/chat_service.dart';
-import 'package:jjj/chat/user_tile.dart';
+import 'package:jjj/pages/chat/chat_service.dart';
+import 'package:jjj/pages/chat/user_tile.dart';
 import 'chat_page.dart';
 
 class MessagePage extends StatefulWidget {

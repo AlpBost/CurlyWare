@@ -2,22 +2,22 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:jjj/pages/mainpage/ProjectsController.dart';
-import 'detailedProjectPage.dart';
+import '../../../pages/mainpage/DetailedPages/detailedProjectPage.dart';
 
 
 
-class CompletedPage extends StatefulWidget {
+class BugsPage extends StatefulWidget {
   @override
-  _CompletedPage createState() => _CompletedPage();
+  _BugsPage createState() => _BugsPage();
 }
 
-class _CompletedPage extends State<CompletedPage> {
+class _BugsPage extends State<BugsPage> {
   List<Project> projects = [];
 
   Future<void> _fetchToDoTasksFromFirebase() async {
     final snapshot = await FirebaseFirestore.instance
         .collection('projects')
-        .where('projectType', isEqualTo: 'Completed') // Filter by 'Completed'
+        .where('projectType', isEqualTo: 'Bugs') // Filter by 'Bugs'
         .get();
 
     print('Fetched ${snapshot.docs.length} tasks from Firestore');
@@ -42,7 +42,7 @@ class _CompletedPage extends State<CompletedPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Completed Projects"),
+        title: Text("Bug Projects"),
       ),
       body: Column(
         children: [
