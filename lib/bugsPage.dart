@@ -63,10 +63,20 @@ class _BugsPage extends State<BugsPage> {
                           previousState: task.projectType,
                         ),
                       );
-                      if (updatedState != null) {
-                        setState(() {
-                          projects[index].projectType = updatedState;
-                        });
+
+                      if (updatedState != null && updatedState != task.projectType) {
+                        // Firestore'da da güncelle
+                        final snapshot = await FirebaseFirestore.instance
+                            .collection('projects')
+                            .where('projectName', isEqualTo: task.projectName)
+                            .get();
+
+                        for (var doc in snapshot.docs) {
+                          await doc.reference.update({'projectType': updatedState});
+                        }
+
+                        // Listeyi yenile
+                        await _fetchToDoTasksFromFirebase();
                       }
                     },
                     child: Padding(

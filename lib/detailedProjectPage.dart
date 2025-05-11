@@ -106,7 +106,7 @@ class _DetailedProjectPageState extends State<DetailedProjectPage> {
               isExpanded: true,
               value: _selectedState,
               hint: Text('Set State'),
-              items: ['To Do', 'In Progress', 'Done', 'Bugs']
+              items: ['To Do', 'In Progress', 'Completed', 'Bugs']
                   .map((String value) => DropdownMenuItem(
                 value: value,
                 child: Text(value),

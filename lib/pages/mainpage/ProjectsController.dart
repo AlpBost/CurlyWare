@@ -13,10 +13,12 @@ class Project {
 class ProjectController extends StatefulWidget {
   @override
   _ProjectControllerState createState() => _ProjectControllerState();
+
 }
 
 class _ProjectControllerState extends State<ProjectController> {
   List<Project> projects = [];
+
 
   Future<void> _addTask(Project project) async {
     await FirebaseFirestore.instance.collection('projects').add({
