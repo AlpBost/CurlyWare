@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth importu
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../auth/auth_service.dart';
-/*
+
 class DetailedProjectPage extends StatefulWidget {
   final String title;
   final String? previousState;
@@ -27,9 +27,8 @@ class _DetailedProjectPageState extends State<DetailedProjectPage> {
   @override
   void initState() {
     super.initState();
-    // Kullanıcıyı FirebaseAuth ile alıyoruz
     User? user = _authService.getCurrentUser();
-    _username = user?.email ?? 'Anonim'; // Kullanıcı adı alınır
+    _username = user?.email ?? 'Anonim';
   }
 
   Future<void> _addComment(String comment, String username) async {
@@ -55,6 +54,48 @@ class _DetailedProjectPageState extends State<DetailedProjectPage> {
         SnackBar(content: Text('Error while sending comment.')),
       );
     }
+  }
+
+  void _showAllCommentsPopup(
+      BuildContext context,
+      List<QueryDocumentSnapshot> docs,
+      ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('All Comments'),
+          content: Container(
+            width: double.maxFinite,
+            child: ListView(
+              shrinkWrap: true,
+              children: docs.map((doc) {
+                final data = doc.data() as Map<String, dynamic>;
+                final timestamp = data['timestamp'] as Timestamp?;
+                final formattedTime = timestamp != null
+                    ? DateTime.fromMillisecondsSinceEpoch(
+                    timestamp.millisecondsSinceEpoch)
+                    .toLocal()
+                    .toString()
+                    .substring(0, 16)
+                    : 'Unknown time';
+
+                return ListTile(
+                  title: Text(data['username'] ?? 'No user'),
+                  subtitle: Text('${data['comment'] ?? ''}\n$formattedTime'),
+                );
+              }).toList(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _addTask(String task) async {
@@ -101,7 +142,7 @@ class _DetailedProjectPageState extends State<DetailedProjectPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Project updated successfully.')),
       );
-      Navigator.of(context).pop(_selectedState); // Close the dialog
+      Navigator.of(context).pop(_selectedState);
     } catch (e) {
       print('Error updating project state: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -112,26 +153,21 @@ class _DetailedProjectPageState extends State<DetailedProjectPage> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(widget.title),
-      content: SingleChildScrollView(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              controller: _descriptionController,
-              decoration: InputDecoration(labelText: 'Project Description'),
-            ),
-            SizedBox(height: 10),
             DropdownButton<String>(
               isExpanded: true,
               value: _selectedState,
               hint: Text('Set State'),
               items: ['To Do', 'In Progress', 'Completed', 'Bugs']
-                  .map((String value) => DropdownMenuItem(
-                value: value,
-                child: Text(value),
-              ))
+                  .map((value) => DropdownMenuItem(value: value, child: Text(value)))
                   .toList(),
               onChanged: (value) {
                 setState(() {
@@ -139,17 +175,9 @@ class _DetailedProjectPageState extends State<DetailedProjectPage> {
                 });
               },
             ),
-            SizedBox(height: 10),
-            TextField(
-              controller: _assignedController,
-              decoration: InputDecoration(labelText: 'Assigned to'),
-            ),
             Divider(height: 30),
-            Text(
-              'Your Name: $_username',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
+            Text('Your Name: $_username',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             TextField(
               controller: _commentController,
               decoration: InputDecoration(labelText: 'Add Comment'),
@@ -163,8 +191,6 @@ class _DetailedProjectPageState extends State<DetailedProjectPage> {
                 },
               ),
             ),
-            SizedBox(height: 10),
-            // Task adding section
             TextField(
               controller: _taskController,
               decoration: InputDecoration(labelText: 'Add Task'),
@@ -189,7 +215,6 @@ class _DetailedProjectPageState extends State<DetailedProjectPage> {
 
                 var docs = snapshot.data!.docs;
 
-                // Newest → oldest
                 docs.sort((a, b) {
                   final aData = a.data() as Map<String, dynamic>;
                   final bData = b.data() as Map<String, dynamic>;
@@ -200,13 +225,68 @@ class _DetailedProjectPageState extends State<DetailedProjectPage> {
                   if (aTimestamp == null) return 1;
                   if (bTimestamp == null) return -1;
 
-                  return bTimestamp.compareTo(aTimestamp); // newest → oldest
+                  return bTimestamp.compareTo(aTimestamp);
                 });
 
                 return Column(
-                  children: docs.map((doc) {
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ...docs.take(3).map((doc) {
+                      final data = doc.data() as Map<String, dynamic>;
+                      final timestamp = data['timestamp'] as Timestamp?;
+                      final formattedTime = timestamp != null
+                          ? DateTime.fromMillisecondsSinceEpoch(
+                          timestamp.millisecondsSinceEpoch)
+                          .toLocal()
+                          .toString()
+                          .substring(0, 16)
+                          : 'Unknown time';
+
+                      return Column(
+                        children: [
+                          ListTile(
+                            title: Text(data['username'] ?? 'No user'),
+                            subtitle:
+                            Text('${data['comment'] ?? ''}\n$formattedTime'),
+                          ),
+                          Divider(),
+                        ],
+                      );
+                    }).toList(),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          _showAllCommentsPopup(context, docs);
+                        },
+                        child: Text('See All Comments'),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+            SizedBox(height: 30),
+            Text('Tasks',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('tasks')
+                  .where('projectTitle', isEqualTo: widget.title)
+                  .orderBy('createdAt', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  return CircularProgressIndicator();
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty)
+                  return Text("No tasks have been added.");
+
+                var taskDocs = snapshot.data!.docs;
+
+                return Column(
+                  children: taskDocs.map((doc) {
                     final data = doc.data() as Map<String, dynamic>;
-                    final timestamp = data['timestamp'] as Timestamp?;
+                    final timestamp = data['createdAt'] as Timestamp?;
                     final formattedTime = timestamp != null
                         ? DateTime.fromMillisecondsSinceEpoch(
                         timestamp.millisecondsSinceEpoch)
@@ -214,14 +294,14 @@ class _DetailedProjectPageState extends State<DetailedProjectPage> {
                         .toString()
                         .substring(0, 16)
                         : 'Unknown time';
+
                     return Column(
                       children: [
                         ListTile(
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8.0),
-                          title: Text(data['username'] ?? 'No user'),
-                          subtitle:
-                          Text('${data['comment'] ?? ''}\n$formattedTime'),
+                          leading: Icon(Icons.task_alt),
+                          title: Text(data['task'] ?? 'Unnamed Task'),
+                          subtitle: Text(
+                              'Assigned to: ${data['assignedTo'] ?? 'N/A'}\n$formattedTime'),
                         ),
                         Divider(),
                       ],
@@ -233,19 +313,12 @@ class _DetailedProjectPageState extends State<DetailedProjectPage> {
           ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            _updateProjectState();
-          },
-          child: Text('Save'),
-        ),
-      ],
+      floatingActionButton: ElevatedButton(
+        onPressed: () {
+          _updateProjectState();
+        },
+        child: Text('Save'),
+      ),
     );
   }
 }
-*/

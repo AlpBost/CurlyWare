@@ -118,7 +118,7 @@ class _ReportsPageState extends State<ReportsPage> {
             ),
             SizedBox(height: 10),
             Text(
-              "$numberOfProjects Tasks",
+              "$numberOfProjects Projects",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -151,7 +151,7 @@ class _ReportsPageState extends State<ReportsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Task Overview",
+            "Projects Overview",
             style: TextStyle(
               color: Colors.black,
               fontSize: 19,
@@ -159,19 +159,20 @@ class _ReportsPageState extends State<ReportsPage> {
             ),
           ),
           SizedBox(height: 20),
-          _buildTaskProgress("To Do", todoPercentage.toInt(), Colors.green[900]!),
+          _buildProjectProgress("To Do", todoPercentage.toInt(), Colors.blue[900]!),
           SizedBox(height: 10),
-          _buildTaskProgress("In Process", inprogressPercentage.toInt(), Colors.red[800]!),
+          _buildProjectProgress("In Process", inprogressPercentage.toInt(), Colors.red[800]!),
           SizedBox(height: 10),
-          _buildTaskProgress("Completed", donePercentage.toInt(), Colors.blue[900]!),
+          _buildProjectProgress("Completed", donePercentage.toInt(), Colors.blue[900]!),
           SizedBox(height: 10),
-          _buildTaskProgress("Bugs", bugsPercentage.toInt(), Colors.purple[700]!),
+          _buildProjectProgress("Bugs", bugsPercentage.toInt(), Colors.purple[700]!),
         ],
       ),
     );
   }
 
-  Widget _buildTaskProgress(String title, int percentage, Color color) {
+  //Projects Overview (To Do , In Process , Completed , Bugs)
+  Widget _buildProjectProgress(String title, int percentage, Color color) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -225,10 +226,10 @@ class _ReportsPageState extends State<ReportsPage> {
                 spacing: 10.0,
                 runSpacing: 10.0,
                 children: [
-                  _buildProjectBox(context, "To Do", Colors.green[900]!, todoTaskCount),
-                  _buildProjectBox(context, "In Process", Colors.red[800]!, inprogressTaskCount),
+                  _buildProjectBox(context, "To Do", Colors.blue[600]!, todoTaskCount),
+                  _buildProjectBox(context, "In Progress", Colors.blue[300]!, inprogressTaskCount),
                   _buildProjectBox(context, "Completed", Colors.blue[900]!, doneTaskCount),
-                  _buildProjectBox(context, "Bugs", Colors.purple[700]!, bugsTaskCount),
+                  _buildProjectBox(context, "Bugs", Colors.blue, bugsTaskCount),
                 ],
               ),
               SizedBox(height: 30),

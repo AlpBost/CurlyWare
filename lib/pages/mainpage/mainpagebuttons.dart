@@ -21,7 +21,6 @@ class _MainpageButtonsState extends State<MainPageButtons> {
     Column(
       children: [
         Expanded(child: ProjectTypes()),
-        Expanded(child: ProjectController()),
       ],
     ),
     Center(child: MessagePage()),
