@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:jjj/pages/mainpage/DetailedPages/ProjectDetailPage.dart';
 import 'package:jjj/pages/mainpage/ProjectsController.dart';
-import '../../../pages/mainpage/DetailedPages/detailedProjectPage.dart';
+
 
 
 

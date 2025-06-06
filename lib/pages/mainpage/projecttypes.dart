@@ -40,6 +40,37 @@ class _ProjectTypesState extends State<ProjectTypes> {
       }).toList();
     });
   }
+  
+  // Projeye ait görevlerin tamamlanma oranını hesaplayan fonksiyon
+  Future<Map<String, dynamic>> _getTaskCompletionRate(String projectName) async {
+    // Projeye ait tüm görevleri çek
+    final snapshot = await FirebaseFirestore.instance
+        .collection('tasks')
+        .where('projectTitle', isEqualTo: projectName)
+        .get();
+    
+    if (snapshot.docs.isEmpty) {
+      return {'rate': 0.0, 'total': 0, 'completed': 0};
+    }
+    
+    // Toplam görev sayısı
+    final int totalTasks = snapshot.docs.length;
+    
+    // Tamamlanmış görev sayısı (state = 'Done' olanlar)
+    final int completedTasks = snapshot.docs.where((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return data['state'] == 'Done';
+    }).length;
+    
+    // Tamamlanma oranı
+    final double completionRate = totalTasks > 0 ? completedTasks / totalTasks : 0.0;
+    
+    return {
+       'rate': completionRate,
+       'total': totalTasks,
+       'completed': completedTasks,
+     };
+   }
 
   Future<void> _addTask(Project project) async {
     await FirebaseFirestore.instance.collection('projects').add({
@@ -186,9 +217,9 @@ class _ProjectTypesState extends State<ProjectTypes> {
                       selectedType = cat["label"].toString();
                     });
                   },
-                  selectedColor: Colors.blue.shade400, // Seçildiğinde farklı renk
-                  backgroundColor: Colors.grey.shade200, // Seçilmemişken arka plan
-                  showCheckmark: false, // Tik işaretini gizle
+                  selectedColor: Colors.blue.shade400,
+                  backgroundColor: Colors.grey.shade200,
+                  showCheckmark: false,
                   visualDensity: VisualDensity.compact,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
@@ -204,7 +235,7 @@ class _ProjectTypesState extends State<ProjectTypes> {
               itemBuilder: (context, index) {
                 final project = filteredProjects.isNotEmpty && filteredProjects[index] != null
                     ? filteredProjects[index]
-                    : Project(); // Boş bir project nesnesi döndür
+                    : Project();
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
@@ -232,22 +263,66 @@ class _ProjectTypesState extends State<ProjectTypes> {
                         project.projectName ?? '',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      subtitle: Text(project.description ?? ''),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(project.description ?? ''),
+                          SizedBox(height: 5),
+                          FutureBuilder<Map<String, dynamic>>(
+                            future: _getTaskCompletionRate(project.projectName ?? ''),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return SizedBox(height: 5);
+                              }
+                              
+                              final data = snapshot.data ?? {'rate': 0.0, 'total': 0, 'completed': 0};
+                              final double completionRate = data['rate'];
+                              final int totalTasks = data['total'];
+                              final int completedTasks = data['completed'];
+                              
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: LinearProgressIndicator(
+                                        value: completionRate,
+                                        backgroundColor: Colors.grey[300],
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                                        minHeight: 8,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    '$completedTasks/$totalTasks',
+                                    style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                       trailing: Text(
                         project.assigned ?? '',
                         style: const TextStyle(color: Colors.grey),
                       ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DetailedProjectPage(
-                              title: project.projectName ?? 'Unnamed Project',
-                              previousState: project.projectType,
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DetailedProjectPage(
+                                title: project.projectName ?? 'Unnamed Project',
+                                previousState: project.projectType,
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+
+
+                          await _fetchTasksFromFirebase();
+                        }
+
 
                     ),
                   ),

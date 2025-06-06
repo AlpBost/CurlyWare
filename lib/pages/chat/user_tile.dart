@@ -25,7 +25,7 @@ class UserTile extends StatelessWidget{
         children: [
           const Icon(Icons.person),
           const SizedBox(width: 20,),
-          Text(text),
+          Text(text.split('@').first),
         ],
       ),
     ),

@@ -54,7 +54,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.recieveEmail)),
+      appBar: AppBar(title: Text(widget.recieveEmail.split('@').first)),
       body: Column(
         children: [
           Expanded(
