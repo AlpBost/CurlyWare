@@ -5,7 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:jjj/pages/mainpage/ProjectsController.dart';
 import 'package:jjj/pages/mainpage/DetailedPages/ProjectDetailPage.dart';
 
-
 class ProjectTypes extends StatefulWidget {
   const ProjectTypes({super.key});
 
@@ -15,14 +14,15 @@ class ProjectTypes extends StatefulWidget {
 
 class _ProjectTypesState extends State<ProjectTypes> {
   List<Project> projects = [];
-  String selectedType = "To Do"; // Başlangıç tipi
+  String selectedType = "To Do"; // Start with "To Do" type
 
   @override
   void initState() {
     super.initState();
-    _fetchTasksFromFirebase();
+    _fetchTasksFromFirebase(); // Get projects from database when screen opens
   }
 
+  // Get all projects from Firestore database
   Future<void> _fetchTasksFromFirebase() async {
     final snapshot = await FirebaseFirestore.instance
         .collection('projects')
@@ -40,38 +40,37 @@ class _ProjectTypesState extends State<ProjectTypes> {
       }).toList();
     });
   }
-  
-  // Projeye ait görevlerin tamamlanma oranını hesaplayan fonksiyon
+
+  // Calculate task completion rate for a project
   Future<Map<String, dynamic>> _getTaskCompletionRate(String projectName) async {
-    // Projeye ait tüm görevleri çek
+    // Get all tasks for this project
     final snapshot = await FirebaseFirestore.instance
         .collection('tasks')
         .where('projectTitle', isEqualTo: projectName)
         .get();
-    
+
     if (snapshot.docs.isEmpty) {
-      return {'rate': 0.0, 'total': 0, 'completed': 0};
+      return {'rate': 0.0, 'total': 0, 'completed': 0}; // No tasks found
     }
-    
-    // Toplam görev sayısı
-    final int totalTasks = snapshot.docs.length;
-    
-    // Tamamlanmış görev sayısı (state = 'Done' olanlar)
+
+    final int totalTasks = snapshot.docs.length; // Total number of tasks
+
+    // Count how many tasks are done
     final int completedTasks = snapshot.docs.where((doc) {
       final data = doc.data() as Map<String, dynamic>;
       return data['state'] == 'Done';
     }).length;
-    
-    // Tamamlanma oranı
-    final double completionRate = totalTasks > 0 ? completedTasks / totalTasks : 0.0;
-    
-    return {
-       'rate': completionRate,
-       'total': totalTasks,
-       'completed': completedTasks,
-     };
-   }
 
+    final double completionRate = totalTasks > 0 ? completedTasks / totalTasks : 0.0; // Calculate rate
+
+    return {
+      'rate': completionRate,
+      'total': totalTasks,
+      'completed': completedTasks,
+    };
+  }
+
+  // Add a new project to Firestore
   Future<void> _addTask(Project project) async {
     await FirebaseFirestore.instance.collection('projects').add({
       'projectName': project.projectName,
@@ -80,9 +79,10 @@ class _ProjectTypesState extends State<ProjectTypes> {
       'assigned': project.assigned,
       'createdAt': FieldValue.serverTimestamp(),
     });
-    await _fetchTasksFromFirebase();
+    await _fetchTasksFromFirebase(); // Refresh project list
   }
 
+  // Show dialog to add new project
   void _showAddTaskDialog() {
     Project newProject = Project();
     showDialog(
@@ -93,6 +93,7 @@ class _ProjectTypesState extends State<ProjectTypes> {
           content: SingleChildScrollView(
             child: Column(
               children: [
+                // Input for project name
                 TextField(
                   decoration: const InputDecoration(labelText: 'Project Name'),
                   onChanged: (value) {
@@ -100,6 +101,7 @@ class _ProjectTypesState extends State<ProjectTypes> {
                   },
                 ),
                 const SizedBox(height: 10),
+                // Dropdown for project type
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(
                     labelText: 'Project Type',
@@ -116,6 +118,7 @@ class _ProjectTypesState extends State<ProjectTypes> {
                   },
                 ),
                 const SizedBox(height: 10),
+                // Input for description
                 TextField(
                   decoration: const InputDecoration(labelText: 'Description'),
                   onChanged: (value) {
@@ -123,6 +126,7 @@ class _ProjectTypesState extends State<ProjectTypes> {
                   },
                 ),
                 const SizedBox(height: 10),
+                // Input for assigned person
                 TextField(
                   decoration: const InputDecoration(labelText: 'Assigned To'),
                   onChanged: (value) {
@@ -134,17 +138,18 @@ class _ProjectTypesState extends State<ProjectTypes> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(context), // Close dialog
               child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () async {
+                // If all fields are filled, add project
                 if (newProject.projectName != null &&
                     newProject.projectType != null &&
                     newProject.description != null &&
                     newProject.assigned != null) {
                   await _addTask(newProject);
-                  Navigator.pop(context);
+                  Navigator.pop(context); // Close dialog after adding
                 }
               },
               child: const Text('Add Project'),
@@ -157,10 +162,12 @@ class _ProjectTypesState extends State<ProjectTypes> {
 
   @override
   Widget build(BuildContext context) {
+    // Filter projects by selected type
     final filteredProjects = projects
         .where((project) => project.projectType == selectedType)
         .toList();
 
+    // Project categories with icons
     final categories = [
       {"label": "To Do", "icon": Icons.list_alt_rounded},
       {"label": "In Progress", "icon": Icons.timelapse_rounded},
@@ -174,12 +181,13 @@ class _ProjectTypesState extends State<ProjectTypes> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: _showAddTaskDialog,
+            onPressed: _showAddTaskDialog, // Open dialog to add project
           ),
         ],
       ),
       body: Column(
         children: [
+          // Show choice chips for project types
           Wrap(
             spacing: 12,
             runSpacing: 12,
@@ -214,7 +222,7 @@ class _ProjectTypesState extends State<ProjectTypes> {
                   selected: isSelected,
                   onSelected: (_) {
                     setState(() {
-                      selectedType = cat["label"].toString();
+                      selectedType = cat["label"].toString(); // Change selected type
                     });
                   },
                   selectedColor: Colors.blue.shade400,
@@ -227,10 +235,11 @@ class _ProjectTypesState extends State<ProjectTypes> {
             }).toList(),
           ),
           const SizedBox(height: 10),
+          // Show list of filtered projects
           Expanded(
             child: filteredProjects.isEmpty
-                ? const Center(child: Text("No projects found."))
-                :ListView.builder(
+                ? const Center(child: Text("No projects found.")) // Show message if no projects
+                : ListView.builder(
               itemCount: filteredProjects.length,
               itemBuilder: (context, index) {
                 final project = filteredProjects.isNotEmpty && filteredProjects[index] != null
@@ -252,63 +261,64 @@ class _ProjectTypesState extends State<ProjectTypes> {
                       ],
                     ),
                     child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.blueAccent,
-                        child: Text(
-                          '${index + 1}',
-                          style: const TextStyle(color: Colors.white),
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.blueAccent,
+                          child: Text(
+                            '${index + 1}', // Show project number
+                            style: const TextStyle(color: Colors.white),
+                          ),
                         ),
-                      ),
-                      title: Text(
-                        project.projectName ?? '',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(project.description ?? ''),
-                          SizedBox(height: 5),
-                          FutureBuilder<Map<String, dynamic>>(
-                            future: _getTaskCompletionRate(project.projectName ?? ''),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return SizedBox(height: 5);
-                              }
-                              
-                              final data = snapshot.data ?? {'rate': 0.0, 'total': 0, 'completed': 0};
-                              final double completionRate = data['rate'];
-                              final int totalTasks = data['total'];
-                              final int completedTasks = data['completed'];
-                              
-                              return Row(
-                                children: [
-                                  Expanded(
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: LinearProgressIndicator(
-                                        value: completionRate,
-                                        backgroundColor: Colors.grey[300],
-                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                                        minHeight: 8,
+                        title: Text(
+                          project.projectName ?? '',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(project.description ?? ''), // Show description
+                            SizedBox(height: 5),
+                            FutureBuilder<Map<String, dynamic>>(
+                              future: _getTaskCompletionRate(project.projectName ?? ''),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return SizedBox(height: 5); // Wait for data
+                                }
+
+                                final data = snapshot.data ?? {'rate': 0.0, 'total': 0, 'completed': 0};
+                                final double completionRate = data['rate'];
+                                final int totalTasks = data['total'];
+                                final int completedTasks = data['completed'];
+
+                                return Row(
+                                  children: [
+                                    Expanded(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: LinearProgressIndicator(
+                                          value: completionRate, // Show progress bar
+                                          backgroundColor: Colors.grey[300],
+                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                                          minHeight: 8,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    '$completedTasks/$totalTasks',
-                                    style: TextStyle(fontSize: 12, color: Colors.grey[700]),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      trailing: Text(
-                        project.assigned ?? '',
-                        style: const TextStyle(color: Colors.grey),
-                      ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      '$completedTasks/$totalTasks', // Show done/total tasks
+                                      style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        trailing: Text(
+                          project.assigned ?? '', // Show assigned person
+                          style: const TextStyle(color: Colors.grey),
+                        ),
                         onTap: () async {
+                          // Open project detail page
                           await Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -319,11 +329,8 @@ class _ProjectTypesState extends State<ProjectTypes> {
                             ),
                           );
 
-
-                          await _fetchTasksFromFirebase();
+                          await _fetchTasksFromFirebase(); // Refresh list after returning
                         }
-
-
                     ),
                   ),
                 );

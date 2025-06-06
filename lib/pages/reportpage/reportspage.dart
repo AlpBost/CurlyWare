@@ -12,6 +12,7 @@ class ReportsPage extends StatefulWidget {
 class _ReportsPageState extends State<ReportsPage> {
   List<Project> projects = [];
 
+  // Variables to hold count of projects by their types
   int totalTaskCount = 0;
   int todoTaskCount = 0;
   int inprogressTaskCount = 0;
@@ -21,9 +22,11 @@ class _ReportsPageState extends State<ReportsPage> {
   @override
   void initState() {
     super.initState();
+    // Fetch project data from Firebase when widget is initialized
     _fetchTasksFromFirebase();
   }
 
+  // Fetch all projects from Firestore and count projects by their types
   Future<void> _fetchTasksFromFirebase() async {
     final snapshot = await FirebaseFirestore.instance
         .collection('projects')
@@ -32,6 +35,7 @@ class _ReportsPageState extends State<ReportsPage> {
 
     print('Fetched ${snapshot.docs.length} tasks from Firestore');
 
+    // Map Firestore documents to Project objects
     List<Project> fetchedProjects = snapshot.docs.map((doc) {
       return Project(
         projectName: doc['projectName'],
@@ -39,6 +43,7 @@ class _ReportsPageState extends State<ReportsPage> {
       );
     }).toList();
 
+    // Count how many projects of each type exist
     for (var project in fetchedProjects) {
       switch (project.projectType) {
         case 'To Do':
@@ -56,12 +61,14 @@ class _ReportsPageState extends State<ReportsPage> {
       }
     }
 
+    // Update state with fetched data and counts
     setState(() {
       projects = fetchedProjects;
       totalTaskCount = fetchedProjects.length;
     });
   }
 
+  // Show logout confirmation dialog
   void _logout(BuildContext context) {
     showDialog(
       context: context,
@@ -76,6 +83,7 @@ class _ReportsPageState extends State<ReportsPage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
+              // Navigate to login screen after logout
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -88,6 +96,7 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
+  // Build a colored box widget that displays project type and count
   Widget _buildProjectBox(
       BuildContext context, String title, Color color, int numberOfProjects) {
     return Container(
@@ -108,7 +117,7 @@ class _ReportsPageState extends State<ReportsPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              title,
+              title, // Project type name
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
@@ -118,7 +127,7 @@ class _ReportsPageState extends State<ReportsPage> {
             ),
             SizedBox(height: 10),
             Text(
-              "$numberOfProjects Projects",
+              "$numberOfProjects Projects", // Number of projects for this type
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -130,7 +139,9 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
+  // Show overview progress bars for project types in percentages
   Widget _dailyTaskOverview() {
+    // Calculate percentage for each project type
     double todoPercentage =
     totalTaskCount == 0 ? 0 : (todoTaskCount / totalTaskCount) * 100;
     double inprogressPercentage =
@@ -151,7 +162,7 @@ class _ReportsPageState extends State<ReportsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Projects Overview",
+            "Projects Overview", // Section title
             style: TextStyle(
               color: Colors.black,
               fontSize: 19,
@@ -159,6 +170,7 @@ class _ReportsPageState extends State<ReportsPage> {
             ),
           ),
           SizedBox(height: 20),
+          // Progress bars for each project type
           _buildProjectProgress("To Do", todoPercentage.toInt(), Colors.blue[900]!),
           SizedBox(height: 10),
           _buildProjectProgress("In Process", inprogressPercentage.toInt(), Colors.red[800]!),
@@ -171,13 +183,13 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  //Projects Overview (To Do , In Process , Completed , Bugs)
+  // Build a single progress bar widget for project type and percentage
   Widget _buildProjectProgress(String title, int percentage, Color color) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          title,
+          title, // Project type name
           style: TextStyle(
             color: color,
             fontSize: 16,
@@ -186,13 +198,13 @@ class _ReportsPageState extends State<ReportsPage> {
         ),
         SizedBox(height: 5),
         LinearProgressIndicator(
-          value: percentage / 100,
+          value: percentage / 100, // Progress value as fraction
           backgroundColor: color.withOpacity(0.2),
           valueColor: AlwaysStoppedAnimation<Color>(color),
         ),
         SizedBox(height: 5),
         Text(
-          "$percentage%",
+          "$percentage%", // Percentage text
           style: TextStyle(
             color: color,
             fontSize: 14,
@@ -211,7 +223,7 @@ class _ReportsPageState extends State<ReportsPage> {
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {
-              _logout(context);
+              _logout(context); // Show logout dialog when pressed
             },
           ),
         ],
@@ -222,6 +234,7 @@ class _ReportsPageState extends State<ReportsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Display project type boxes with counts
               Wrap(
                 spacing: 10.0,
                 runSpacing: 10.0,
@@ -233,6 +246,7 @@ class _ReportsPageState extends State<ReportsPage> {
                 ],
               ),
               SizedBox(height: 30),
+              // Display project progress overview bars
               _dailyTaskOverview(),
             ],
           ),

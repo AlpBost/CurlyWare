@@ -676,38 +676,73 @@ class _DetailedProjectPageState extends State<DetailedProjectPage> {
                           .substring(0, 16)
                           : 'Unknown time';
 
-                      return Card(
-                        margin: EdgeInsets.only(bottom: 8),
-                        child: ListTile(
-                          leading: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text('${taskDocs.length - index}', style: TextStyle(fontWeight: FontWeight.bold)),
-                              SizedBox(width: 8),
-                            ],
-                          ),
-                          title: Text(data['task'] ?? 'Unnamed Task'),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(data['description'] ?? ''),
-                              Text(formattedTime),
-                            ],
-                          ),
-                          trailing: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: _getStateColor(data['state'] ?? 'To Do'),
-                              borderRadius: BorderRadius.circular(8),
+                      return Dismissible(
+                        key: Key(doc.id),
+                        direction: DismissDirection.endToStart, // sola kaydırma
+                        background: Container(
+                          alignment: Alignment.centerRight,
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          color: Colors.red,
+                          child: Icon(Icons.delete, color: Colors.white),
+                        ),
+                        confirmDismiss: (direction) async {
+                          return await showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text("Delete Task"),
+                              content: Text("Are you sure you want to delete this task?"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(false),
+                                  child: Text("Cancel"),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(true),
+                                  child: Text("Delete", style: TextStyle(color: Colors.red)),
+                                ),
+                              ],
                             ),
-                            child: Text(
-                              data['state'] ?? 'To Do',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                          );
+                        },
+                        onDismissed: (direction) async {
+                          await FirebaseFirestore.instance.collection('tasks').doc(doc.id).delete();
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Task deleted")));
+                        },
+                        child: Card(
+                          margin: EdgeInsets.only(bottom: 8),
+                          child: ListTile(
+                            leading: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text('${taskDocs.length - index}', style: TextStyle(fontWeight: FontWeight.bold)),
+                                SizedBox(width: 8),
+                              ],
                             ),
+                            title: Text(data['task'] ?? 'Unnamed Task'),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(data['description'] ?? ''),
+                                Text(formattedTime),
+                              ],
+                            ),
+                            trailing: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: _getStateColor(data['state'] ?? 'To Do'),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                data['state'] ?? 'To Do',
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                            isThreeLine: true,
+                            onTap: () => _showUpdateTaskStateDialog(doc.id, data['state'] ?? 'To Do'),
                           ),
-                          isThreeLine: true,
-                          onTap: () => _showUpdateTaskStateDialog(doc.id, data['state'] ?? 'To Do'),
-                      ));
+                        ),
+                      );
+
 
                     },
                   );
@@ -721,6 +756,4 @@ class _DetailedProjectPageState extends State<DetailedProjectPage> {
       ),
     );
   }
-
-
 }

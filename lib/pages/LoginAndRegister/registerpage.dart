@@ -10,11 +10,12 @@ class Registerpage extends StatefulWidget {
 }
 
 class _RegisterpageState extends State<Registerpage> {
-  final _formKey = GlobalKey<FormState>(); // Form doğrulaması için
+  final _formKey = GlobalKey<FormState>(); // For form validation
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
+  // This function creates a new user account
   Future<void> _register() async {
     try {
       final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -22,14 +23,16 @@ class _RegisterpageState extends State<Registerpage> {
         password: _passwordController.text.trim(),
       );
 
+      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Registration Successful')),
       );
 
-
+      // Go to login screen after successful sign up
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
 
     } on FirebaseAuthException catch (e) {
+      // Show different messages for different errors
       String message = '';
       if (e.code == 'email-already-in-use') {
         message = 'This email is already in use.';
@@ -42,6 +45,7 @@ class _RegisterpageState extends State<Registerpage> {
         SnackBar(content: Text(message)),
       );
     } catch (e) {
+      // Show error if something else goes wrong
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('An error occurred: $e')),
       );
@@ -62,6 +66,7 @@ class _RegisterpageState extends State<Registerpage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Email input field
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(
@@ -80,6 +85,7 @@ class _RegisterpageState extends State<Registerpage> {
               ),
               const SizedBox(height: 16),
 
+              // Password input field
               TextFormField(
                 controller: _passwordController,
                 obscureText: true,
@@ -98,6 +104,7 @@ class _RegisterpageState extends State<Registerpage> {
               ),
               const SizedBox(height: 16),
 
+              // Confirm password input field
               TextFormField(
                 controller: _confirmPasswordController,
                 obscureText: true,
@@ -116,10 +123,11 @@ class _RegisterpageState extends State<Registerpage> {
               ),
               const SizedBox(height: 32),
 
+              // Sign Up button
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    _register();
+                    _register(); // Call register function
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -133,6 +141,7 @@ class _RegisterpageState extends State<Registerpage> {
               ),
               const SizedBox(height: 10),
 
+              // Button to go back if already have account
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);

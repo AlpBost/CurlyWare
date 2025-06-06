@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:jjj/pages/mainpage/DetailedPages/detailedProjectPage.dart';
 
 import 'DetailedPages/ProjectDetailPage.dart';
 
@@ -26,7 +25,7 @@ class ProjectController extends StatefulWidget {
 class _ProjectControllerState extends State<ProjectController> {
   List<Project> projects = [];
 
-  // Firebase'a proje ekleme fonksiyonu
+  // Add new project to Firebase
   Future<void> _addTask(Project project) async {
     await FirebaseFirestore.instance.collection('projects').add({
       'projectName': project.projectName,
@@ -35,10 +34,10 @@ class _ProjectControllerState extends State<ProjectController> {
       'assigned': project.assigned,
       'createdAt': FieldValue.serverTimestamp(),
     });
-    await _fetchTasksFromFirebase();
+    await _fetchTasksFromFirebase(); // Refresh list after add
   }
 
-  // Firebase'den projeleri çekme fonksiyonu
+  // Get all projects from Firebase ordered by date
   Future<void> _fetchTasksFromFirebase() async {
     final snapshot = await FirebaseFirestore.instance
         .collection('projects')
@@ -46,6 +45,7 @@ class _ProjectControllerState extends State<ProjectController> {
         .get();
 
     setState(() {
+      // Map documents to Project objects
       projects = snapshot.docs.map((doc) {
         return Project(
           projectName: doc['projectName'],
@@ -60,10 +60,10 @@ class _ProjectControllerState extends State<ProjectController> {
   @override
   void initState() {
     super.initState();
-    _fetchTasksFromFirebase();
+    _fetchTasksFromFirebase(); // Load projects when start
   }
 
-  // Yeni proje eklemek için dialog gösterme fonksiyonu
+  // Show dialog to add a new project
   void _showAddTaskDialog() {
     Project newProject = Project();
     showDialog(
@@ -75,6 +75,7 @@ class _ProjectControllerState extends State<ProjectController> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Input for project name
                 TextField(
                   decoration: InputDecoration(labelText: 'Project Name'),
                   onChanged: (value) {
@@ -82,6 +83,7 @@ class _ProjectControllerState extends State<ProjectController> {
                   },
                 ),
                 SizedBox(height: 10),
+                // Dropdown for project type
                 DropdownButtonFormField<String>(
                   decoration: InputDecoration(
                     labelText: 'Project Type',
@@ -98,6 +100,7 @@ class _ProjectControllerState extends State<ProjectController> {
                   },
                 ),
                 SizedBox(height: 10),
+                // Input for description
                 TextField(
                   decoration: InputDecoration(labelText: 'Description'),
                   onChanged: (value) {
@@ -105,6 +108,7 @@ class _ProjectControllerState extends State<ProjectController> {
                   },
                 ),
                 SizedBox(height: 10),
+                // Input for assigned person
                 TextField(
                   decoration: InputDecoration(labelText: 'Assigned To'),
                   onChanged: (value) {
@@ -117,18 +121,19 @@ class _ProjectControllerState extends State<ProjectController> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(context); // Close dialog without saving
               },
               child: Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () async {
+                // Check all fields have value before add
                 if (newProject.projectName != null &&
                     newProject.projectType != null &&
                     newProject.description != null &&
                     newProject.assigned != null) {
-                  await _addTask(newProject);
-                  Navigator.pop(context);
+                  await _addTask(newProject); // Add project to Firebase
+                  Navigator.pop(context); // Close dialog
                 }
               },
               child: Text('Add Project'),
@@ -157,12 +162,12 @@ class _ProjectControllerState extends State<ProjectController> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 ElevatedButton(
-                  onPressed: _showAddTaskDialog,
+                  onPressed: _showAddTaskDialog, // Show add project dialog
                   child: Text("Add Project"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    textStyle: TextStyle(fontSize: 16,color: Colors.white),
+                    textStyle: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
               ],
@@ -177,6 +182,7 @@ class _ProjectControllerState extends State<ProjectController> {
 
                 return GestureDetector(
                   onTap: () async {
+                    // Open project detail page dialog
                     final updatedState = await showDialog<String>(
                       context: context,
                       builder: (context) => DetailedProjectPage(
@@ -186,7 +192,7 @@ class _ProjectControllerState extends State<ProjectController> {
                     );
                     if (updatedState != null) {
                       setState(() {
-                        projects[index].projectType = updatedState;
+                        projects[index].projectType = updatedState; // Update project type
                       });
                     }
                   },
@@ -215,7 +221,7 @@ class _ProjectControllerState extends State<ProjectController> {
                           CircleAvatar(
                             backgroundColor: Colors.blueAccent,
                             child: Text(
-                              '${index + 1}',
+                              '${index + 1}', // Show number
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -262,5 +268,4 @@ class _ProjectControllerState extends State<ProjectController> {
       ),
     );
   }
-
 }

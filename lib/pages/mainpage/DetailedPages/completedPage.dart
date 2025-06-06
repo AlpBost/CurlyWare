@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:jjj/pages/mainpage/DetailedPages/ProjectDetailPage.dart';
 import 'package:jjj/pages/mainpage/ProjectsController.dart';
-import '../../../pages/mainpage/DetailedPages/detailedProjectPage.dart';
-
 
 
 class CompletedPage extends StatefulWidget {
@@ -15,15 +13,17 @@ class CompletedPage extends StatefulWidget {
 class _CompletedPage extends State<CompletedPage> {
   List<Project> projects = [];
 
+  // This function gets all projects with type "Completed"
   Future<void> _fetchToDoTasksFromFirebase() async {
     final snapshot = await FirebaseFirestore.instance
         .collection('projects')
-        .where('projectType', isEqualTo: 'Completed') // Filter by 'Completed'
+        .where('projectType', isEqualTo: 'Completed') // Only completed projects
         .get();
 
     print('Fetched ${snapshot.docs.length} tasks from Firestore');
 
     setState(() {
+      // Convert database data to Project objects
       projects = snapshot.docs.map((doc) {
         return Project(
           projectName: doc['projectName'],
@@ -36,14 +36,14 @@ class _CompletedPage extends State<CompletedPage> {
   @override
   void initState() {
     super.initState();
-    _fetchToDoTasksFromFirebase();
+    _fetchToDoTasksFromFirebase(); // Get data when page starts
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Completed Projects"),
+        title: Text("Completed Projects"), // Page title
       ),
       body: Column(
         children: [
@@ -51,12 +51,13 @@ class _CompletedPage extends State<CompletedPage> {
             child: Center(
               child: ListView.builder(
                 padding: EdgeInsets.zero,
-                itemCount: projects.length,
+                itemCount: projects.length, // Number of projects
                 itemBuilder: (context, index) {
                   final task = projects[index];
 
                   return GestureDetector(
                     onTap: () async {
+                      // Open project detail dialog
                       final updatedState = await showDialog<String>(
                         context: context,
                         builder: (context) => DetailedProjectPage(
@@ -65,8 +66,9 @@ class _CompletedPage extends State<CompletedPage> {
                         ),
                       );
 
+                      // If user changes the project type
                       if (updatedState != null && updatedState != task.projectType) {
-                        // Firestore'da da güncelle
+                        // Update in Firebase
                         final snapshot = await FirebaseFirestore.instance
                             .collection('projects')
                             .where('projectName', isEqualTo: task.projectName)
@@ -76,7 +78,7 @@ class _CompletedPage extends State<CompletedPage> {
                           await doc.reference.update({'projectType': updatedState});
                         }
 
-                        // Listeyi yenile
+                        // Refresh the project list
                         await _fetchToDoTasksFromFirebase();
                       }
                     },
@@ -95,6 +97,7 @@ class _CompletedPage extends State<CompletedPage> {
                         ),
                         child: Row(
                           children: [
+                            // Show project number
                             CircleAvatar(
                               backgroundColor: Colors.black54,
                               child: Text(
@@ -106,6 +109,7 @@ class _CompletedPage extends State<CompletedPage> {
                               ),
                             ),
                             SizedBox(width: 16),
+                            // Show project name
                             Expanded(
                               child: Text(
                                 task.projectName ?? '',
@@ -116,6 +120,7 @@ class _CompletedPage extends State<CompletedPage> {
                                 ),
                               ),
                             ),
+                            // Show project type
                             Container(
                               padding: EdgeInsets.symmetric(
                                 horizontal: 12,

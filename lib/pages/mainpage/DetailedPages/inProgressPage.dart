@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:jjj/pages/mainpage/DetailedPages/ProjectDetailPage.dart';
 import 'package:jjj/pages/mainpage/ProjectsController.dart';
-import 'detailedProjectPage.dart';
-
-
 
 class InProgressPage extends StatefulWidget {
   @override
@@ -15,15 +12,17 @@ class InProgressPage extends StatefulWidget {
 class _InProgressPage extends State<InProgressPage> {
   List<Project> projects = [];
 
+  // This function gets all "In Progress" projects from Firestore
   Future<void> _fetchToDoTasksFromFirebase() async {
     final snapshot = await FirebaseFirestore.instance
         .collection('projects')
-        .where('projectType', isEqualTo: 'In Progress') // Filter by 'In Progress'
+        .where('projectType', isEqualTo: 'In Progress') // Only "In Progress"
         .get();
 
     print('Fetched ${snapshot.docs.length} tasks from Firestore');
 
     setState(() {
+      // Turn documents into Project objects
       projects = snapshot.docs.map((doc) {
         return Project(
           projectName: doc['projectName'],
@@ -36,14 +35,14 @@ class _InProgressPage extends State<InProgressPage> {
   @override
   void initState() {
     super.initState();
-    _fetchToDoTasksFromFirebase();
+    _fetchToDoTasksFromFirebase(); // Call when page opens
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("In Progress Projects"),
+        title: Text("In Progress Projects"), // Page title
       ),
       body: Column(
         children: [
@@ -51,12 +50,13 @@ class _InProgressPage extends State<InProgressPage> {
             child: Center(
               child: ListView.builder(
                 padding: EdgeInsets.zero,
-                itemCount: projects.length,
+                itemCount: projects.length, // Number of projects
                 itemBuilder: (context, index) {
                   final task = projects[index];
 
                   return GestureDetector(
                     onTap: () async {
+                      // Open dialog to see or change project state
                       final updatedState = await showDialog<String>(
                         context: context,
                         builder: (context) => DetailedProjectPage(
@@ -65,8 +65,9 @@ class _InProgressPage extends State<InProgressPage> {
                         ),
                       );
 
+                      // If project type changed
                       if (updatedState != null && updatedState != task.projectType) {
-                        // Firestore'da da güncelle
+                        // Update project type in Firestore
                         final snapshot = await FirebaseFirestore.instance
                             .collection('projects')
                             .where('projectName', isEqualTo: task.projectName)
@@ -76,7 +77,7 @@ class _InProgressPage extends State<InProgressPage> {
                           await doc.reference.update({'projectType': updatedState});
                         }
 
-                        // Listeyi yenile
+                        // Refresh list
                         await _fetchToDoTasksFromFirebase();
                       }
                     },
@@ -95,6 +96,7 @@ class _InProgressPage extends State<InProgressPage> {
                         ),
                         child: Row(
                           children: [
+                            // Project index (number)
                             CircleAvatar(
                               backgroundColor: Colors.black54,
                               child: Text(
@@ -106,6 +108,7 @@ class _InProgressPage extends State<InProgressPage> {
                               ),
                             ),
                             SizedBox(width: 16),
+                            // Project name
                             Expanded(
                               child: Text(
                                 task.projectName ?? '',
@@ -116,6 +119,7 @@ class _InProgressPage extends State<InProgressPage> {
                                 ),
                               ),
                             ),
+                            // Project type badge
                             Container(
                               padding: EdgeInsets.symmetric(
                                 horizontal: 12,

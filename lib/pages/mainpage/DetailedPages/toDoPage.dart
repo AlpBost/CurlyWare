@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:jjj/pages/mainpage/DetailedPages/ProjectDetailPage.dart';
 import 'package:jjj/pages/mainpage/ProjectsController.dart';
-import '../../../pages/mainpage/DetailedPages/detailedProjectPage.dart';
 
 
 
@@ -15,10 +14,11 @@ class ToDoPage extends StatefulWidget {
 class _ToDoPageState extends State<ToDoPage> {
   List<Project> projects = [];
 
+  // Get tasks with 'To Do' type from Firebase
   Future<void> _fetchToDoTasksFromFirebase() async {
     final snapshot = await FirebaseFirestore.instance
         .collection('projects')
-        .where('projectType', isEqualTo: 'To Do') // Filter by 'To Do'
+        .where('projectType', isEqualTo: 'To Do') // Filter only 'To Do'
         .get();
 
     print('Fetched ${snapshot.docs.length} tasks from Firestore');
@@ -26,8 +26,8 @@ class _ToDoPageState extends State<ToDoPage> {
     setState(() {
       projects = snapshot.docs.map((doc) {
         return Project(
-          projectName: doc['projectName'],
-          projectType: doc['projectType'],
+          projectName: doc['projectName'],  // Project name from Firebase
+          projectType: doc['projectType'],  // Project type from Firebase
         );
       }).toList();
     });
@@ -36,28 +36,27 @@ class _ToDoPageState extends State<ToDoPage> {
   @override
   void initState() {
     super.initState();
-    _fetchToDoTasksFromFirebase();
+    _fetchToDoTasksFromFirebase(); // Load tasks when page opens
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("To Do Projects"),
+        title: Text("To Do Projects"), // Page title
       ),
       body: Column(
         children: [
           Expanded(
-
             child: Center(
               child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: projects.length,
+                itemCount: projects.length, // Number of tasks
                 itemBuilder: (context, index) {
                   final task = projects[index];
 
                   return GestureDetector(
                     onTap: () async {
+                      // Open detail page and wait for new state
                       final updatedState = await showDialog<String>(
                         context: context,
                         builder: (context) => DetailedProjectPage(
@@ -67,7 +66,7 @@ class _ToDoPageState extends State<ToDoPage> {
                       );
 
                       if (updatedState != null && updatedState != task.projectType) {
-                        // Firestore'da da güncelle
+                        // Update new state in Firebase
                         final snapshot = await FirebaseFirestore.instance
                             .collection('projects')
                             .where('projectName', isEqualTo: task.projectName)
@@ -77,7 +76,7 @@ class _ToDoPageState extends State<ToDoPage> {
                           await doc.reference.update({'projectType': updatedState});
                         }
 
-                        // Listeyi yenile
+                        // Refresh list after update
                         await _fetchToDoTasksFromFirebase();
                       }
                     },
@@ -87,9 +86,7 @@ class _ToDoPageState extends State<ToDoPage> {
                         horizontal: 16,
                       ),
                       child: Container(
-                        width: double.infinity,
                         height: 80,
-                        padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: Colors.grey[300]!,
                           borderRadius: BorderRadius.circular(10),
@@ -99,7 +96,7 @@ class _ToDoPageState extends State<ToDoPage> {
                             CircleAvatar(
                               backgroundColor: Colors.black54,
                               child: Text(
-                                '${index + 1}',
+                                '${index + 1}', // Show task number
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -109,7 +106,7 @@ class _ToDoPageState extends State<ToDoPage> {
                             SizedBox(width: 16),
                             Expanded(
                               child: Text(
-                                task.projectName ?? '',
+                                task.projectName ?? '', // Show project name
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -118,16 +115,13 @@ class _ToDoPageState extends State<ToDoPage> {
                               ),
                             ),
                             Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
                                 color: Colors.black54,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                task.projectType ?? '',
+                                task.projectType ?? '', // Show project type
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w500,

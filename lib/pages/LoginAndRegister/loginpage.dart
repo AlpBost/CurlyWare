@@ -12,9 +12,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  // We use these to get user's email and password
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  // This function tries to login the user
   void _login(BuildContext context) async {
     final authService = AuthService();
     try {
@@ -22,11 +24,14 @@ class _LoginScreenState extends State<LoginScreen> {
         _usernameController.text.trim(),
         _passwordController.text.trim(),
       );
+
+      // If login is okay, go to main page
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => MainPageButtons()),
       );
     } catch (e) {
+      // If there is an error, show it
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -36,7 +41,6 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -49,12 +53,14 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // App icon
             Image.asset(
               'assets/icons/CurlyIcon.jpeg',
               width: 130,
               height: 130,
             ),
             const SizedBox(height: 20),
+            // Email input
             TextField(
               controller: _usernameController,
               style: const TextStyle(color: Colors.white),
@@ -64,6 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(height: 20),
+            // Password input
             TextField(
               controller: _passwordController,
               style: const TextStyle(color: Colors.white),
@@ -74,6 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
               obscureText: true,
             ),
             const SizedBox(height: 40),
+            // Login button
             ElevatedButton(
               onPressed: () => _login(context),
               style: ElevatedButton.styleFrom(
@@ -83,6 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: const Text("Login"),
             ),
             const SizedBox(height: 10),
+            // Go to Sign Up page
             ElevatedButton(
               onPressed: () {
                 Navigator.push(

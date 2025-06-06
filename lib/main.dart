@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:jjj/auth/auth_check.dart';
 
 
-
-
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
 
